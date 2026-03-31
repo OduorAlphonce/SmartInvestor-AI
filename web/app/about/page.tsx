@@ -42,7 +42,7 @@ export default function AboutPage() {
                   competitors).
                 </p>
                 <p className="text-sm leading-relaxed text-foreground">
-                  FortuneTeller AI provides accessible, data-driven pricing guidance to help small
+                  SmartInvestor Lite provides accessible, data-driven pricing guidance to help small
                   businesses make informed decisions that support sustainable growth.
                 </p>
               </CardContent>
@@ -165,7 +165,7 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm leading-relaxed text-foreground">
-                  FortuneTeller AI aligns with UN Sustainable Development Goal 8 by helping
+                  SmartInvestor Lite aligns with UN Sustainable Development Goal 8 by helping
                   small businesses make sustainable pricing decisions. By providing
                   accessible financial guidance, we support entrepreneurship and help
                   create conditions for decent work and economic growth in communities
