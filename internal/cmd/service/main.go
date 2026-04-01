@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
 	"time"
 
 	"github.com/OduorAlphonce/SmartInvestor-AI/config"
@@ -13,38 +14,31 @@ import (
 
 func main() {
 	cfg := config.Load()
+	fmt.Println("cfg : ", cfg)
 
 	r := gin.Default()
 
 	// CORS
-	allowOrigins := []string{
-		"http://localhost:3000",
-	}
-	if cfg.FrontendURL != "" {
-		allowOrigins = append(allowOrigins, cfg.FrontendURL)
-	}
-
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     allowOrigins,
+		AllowOrigins: []string{
+			"http://localhost:3000",
+			"https://yourdomain.com",
+		},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+		}))
 
 	// Rate limiting
 	r.Use(middleware.RateLimiter())
 
 	// Routes
-	for _, healthPath := range []string{"/ping", "/health", "/api/ping", "/api/health"} {
-		r.GET(healthPath, handlers.PingHandler)
-	}
-	for _, pricingPath := range []string{"/price/recommend", "/api/price/recommend"} {
-		r.POST(pricingPath, handlers.PriceRecommendingHandler)
-	}
+	r.GET("/ping", handlers.PingHandler)
+	r.POST("/api/price/recommend", handlers.PriceRecommendingHandler)
 
 	// Start cleanup worker
 	go middleware.CleanupClients()
 
-	r.Run(":" + cfg.Port)
+	r.Run() // :8080
 }
