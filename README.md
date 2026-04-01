@@ -244,7 +244,9 @@ Pricing endpoints (both supported):
 
 ### 2. Deploy web app (Vercel/Netlify)
 
-From `web`:
+This repo includes a root `netlify.toml` configured for the `web` app.
+
+From `web` (local verification):
 
 ```bash
 npm install

@@ -9,6 +9,10 @@ export async function makeRequest(input: PricingInputs | null): Promise<PricingR
      throw new Error(`No input provided`);
   }
 
+  if (!API_BASE_URL && process.env.NODE_ENV === "production") {
+    throw new Error("Missing NEXT_PUBLIC_API_BASE_URL in production environment");
+  }
+
   const endpoint = API_BASE_URL
     ? `${API_BASE_URL}/api/price/recommend`
     : "/api/price/recommend";
