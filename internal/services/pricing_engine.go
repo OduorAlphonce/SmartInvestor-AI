@@ -1,88 +1,107 @@
 package services
 
 import (
-	"fmt"
+	"errors"
 	"math"
 
 	"github.com/OduorAlphonce/SmartInvestor-AI/models"
 )
 
-const (
-	RiskLow    = "low"
-	RiskMedium = "medium"
-	RiskHigh   = "high"
+func CalculateBasePrice(unitCost, desiredMargin float64) float64 {
+	// formula for calculating profit margin
 
-	MarketCompetitive = "Competitive"
-	MarketOptimal     = "Optimal"
-	MarketPremium     = "Premium"
-)
-
-// roundToTwoDecimals rounds a float64 to 2 decimal places
-func roundToTwoDecimals(val float64) float64 {
-	return math.Round((val+1e-9)*100) / 100
+	basePrice := unitCost * (1 + desiredMargin/100)
+	return basePrice
 }
 
-// CalculatePricing computes recommended price, profit scenarios, and risk evaluation
-func CalculatePricing(input models.PricingInputs) models.PricingResult {
-	if input.UnitCost <= 0 {
-		panic("UnitCost must be greater than 0")
+func CalculateSuggestedRange(basePrice, competitorMin, competitorMax float64) (min float64, max float64, err error) {
+	if competitorMin > competitorMax {
+		return -1, -1, errors.New("invalid competitormin value : competitormin > competitormax")
 	}
 
-	// Recommended price based on desired margin
-	recommendedPrice := roundToTwoDecimals(input.UnitCost * (1 + input.DesiredMargin/100))
+	min = math.Max(basePrice, competitorMin)
+	max = competitorMax
 
-	// Define suggested price range
-	minPrice := roundToTwoDecimals(math.Max(input.CompetitorMinPrice, recommendedPrice*0.9))
-	maxPrice := roundToTwoDecimals(math.Min(input.CompetitorMaxPrice, recommendedPrice*1.1))
+	return min, max, nil
+}
 
-	// Generate profit scenarios
-	scenarios := []models.ProfitScenario{
-		{
-			Price:          minPrice,
-			ProfitPerUnit:  roundToTwoDecimals(minPrice - input.UnitCost),
-			MarginPercent:  roundToTwoDecimals((minPrice - input.UnitCost) / input.UnitCost * 100),
-			MarketPosition: MarketCompetitive,
-		},
-		{
-			Price:          recommendedPrice,
-			ProfitPerUnit:  roundToTwoDecimals(recommendedPrice - input.UnitCost),
-			MarginPercent:  roundToTwoDecimals(input.DesiredMargin),
-			MarketPosition: MarketOptimal,
-		},
-		{
-			Price:          maxPrice,
-			ProfitPerUnit:  roundToTwoDecimals(maxPrice - input.UnitCost),
-			MarginPercent:  roundToTwoDecimals((maxPrice - input.UnitCost) / input.UnitCost * 100),
-			MarketPosition: MarketPremium,
-		},
+func CalculateRecommendedPrice(basePrice, competitorMin, competitorMax float64) float64 {
+	median := (competitorMin + competitorMax) / 2
+
+	clamped := basePrice
+
+	if basePrice < competitorMin {
+		clamped = competitorMin
 	}
 
-	// Example: simple risk evaluation
-	riskLevel := RiskMedium
-	riskFactors := []string{}
-	if recommendedPrice > input.CompetitorMaxPrice {
-		riskLevel = RiskHigh
-		riskFactors = append(riskFactors, "Price exceeds highest competitor price")
-	} else if recommendedPrice < input.CompetitorMinPrice {
-		riskLevel = RiskLow
-		riskFactors = append(riskFactors, "Price below lowest competitor price")
-	} else {
-		riskFactors = append(riskFactors, "Moderate competitor pricing")
+	if basePrice > competitorMax {
+		clamped = competitorMax
 	}
 
-	return models.PricingResult{
-		RecommendedPrice: recommendedPrice,
-		SuggestedRange: struct {
-			Min float64 `json:"min"`
-			Max float64 `json:"max"`
-		}{
-			Min: minPrice,
-			Max: maxPrice,
-		},
-		RiskLevel:       riskLevel,
-		ProfitScenarios: scenarios,
-		RiskExplanation: fmt.Sprintf("Pricing analysis shows %s risk.", riskLevel),
-		RiskFactors:     riskFactors,
-		ConfidenceNote:  "Model confidence is high based on historical trends",
+	recommended := (clamped * 0.6) + (median * 0.4)
+
+	return recommended
+}
+
+func GenerateProfitScenarios(unitCost, competitorMin, competitorMax, recommended float64) []models.ProfitScenario {
+	lowPrice := competitorMin + 0.1*(recommended-competitorMin)
+	highPrice := competitorMax - 0.1*(competitorMax-recommended)
+	median := (competitorMin + competitorMax) / 2
+
+	prices := []float64{highPrice, median, recommended, lowPrice}
+
+	result := []models.ProfitScenario{}
+
+	for _, price := range prices {
+		profitPerUnit := price - unitCost
+		marginPercent := (profitPerUnit / unitCost) * 100
+		marketPosition := DetermineMarketPosition(price, competitorMin, competitorMax)
+
+		item := models.ProfitScenario{
+			Price:          price,
+			MarginPercent:  marginPercent,
+			MarketPosition: marketPosition,
+			ProfitPerUnit:  profitPerUnit,
+		}
+		result = append(result, item)
 	}
+	return result
+}
+
+func DetermineMarketPosition(price, competitorMin, competitorMax float64) string {
+	median := (competitorMin + competitorMax) / 2
+	marketRange := competitorMax - competitorMin
+	if price < competitorMin {
+		return "Below market"
+	}
+	if math.Abs(price-median) <= 0.05*marketRange {
+		return "At market"
+	}
+	if price >= competitorMax-0.05*marketRange {
+		return "Premium"
+	}
+	return "Competitive"
+}
+
+func DetectRiskFactors(
+	basePrice float64,
+	competitorMin float64,
+	competitorMax float64,
+) []string {
+	factors := []string{}
+
+	if basePrice > competitorMax {
+		factors = append(factors,
+			"Base price exceeds highest competitor price",
+		)
+	}
+
+	spread := competitorMax - competitorMin
+	if competitorMin > 0 && (spread/competitorMin) > 0.5 {
+		factors = append(factors,
+			"Competitor prices vary widely, indicating market uncertainty",
+		)
+	}
+
+	return factors
 }

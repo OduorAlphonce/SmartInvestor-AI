@@ -3,6 +3,7 @@ package services
 // internal/services/risk_engine.
 import (
 	"fmt"
+	"strings"
 )
 
 // RiskInput holds the data needed for risk evaluation
@@ -135,6 +136,5 @@ func isMediumRisk(factor string) bool {
 
 // Case-insensitive substring match
 func containsIgnoreCase(str, substr string) bool {
-	return len(str) >= len(substr) && (str == substr ||
-		len(str) > len(substr) && (str[:len(substr)] == substr || str[len(str)-len(substr):] == substr))
+	return strings.Contains(strings.ToLower(str), strings.ToLower(substr))
 }
