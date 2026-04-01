@@ -30,7 +30,7 @@ Smart Investor is an AI-powered agent that helps small businesses make informed 
 ```
 Root
 ├── web      # React + Next.js Web UI
-├── Internal       # Go (FastAPI-style service) with LLM integration
+├── internal # Go API service with LLM integration
 └── README.md
 ```
 
@@ -72,7 +72,7 @@ Root
 **Structure Highlights:**
 
 ```
-cmd/server/main.go           # Entry point for backend service
+cmd/service/main.go          # Entry point for backend service
 internal/
   config/                    # Env handling & configuration
   handlers/                  # HTTP request handlers (pricing, ping)
@@ -85,10 +85,10 @@ internal/
 
 ### 1. Internal
 
-1. Navigate to the `Internal` directory:
+1. Navigate to the `internal` directory:
 
 ```bash
-cd Internal
+cd internal
 ```
 
 2. Create a `.env` file in the backend root with your OpenRouter API key:
@@ -101,11 +101,10 @@ OPENROUTER_API_KEY=<your-api-key>
 
 ```bash
 go mod tidy
-cd cmd/server
-go run .
+go run ./cmd/service
 ```
 
-The internal will start a REST API server (default port 8080).
+The internal service will start a REST API server (default port 8080).
 
 ---
 
@@ -142,6 +141,14 @@ The frontend will be available at `http://localhost:3000`.
 | Variable             | Description                                                         |
 | -------------------- | ------------------------------------------------------------------- |
 | `OPENROUTER_API_KEY` | API key for OpenRouter LLM access (`google/gemini-3-flash-preview`) |
+| `PORT`               | API port (default: `8080`, set by most cloud platforms automatically) |
+| `FRONTEND_URL`       | Deployed web app origin for CORS, e.g. `https://your-app.vercel.app` |
+
+**Web:**
+
+| Variable                   | Description |
+| -------------------------- | ----------- |
+| `NEXT_PUBLIC_API_BASE_URL` | Public base URL of the internal API (example: `https://smartinvestor-api.onrender.com`) |
 
 > Obtain an API key by registering with OpenRouter, then create a key.
 
@@ -171,7 +178,7 @@ The frontend will be available at `http://localhost:3000`.
 **Flow:**
 
 ```
-Frontend Form --> Backend /price/recommend
+Frontend Form --> Backend /api/price/recommend
         --> Pricing Engine --> Risk Engine --> LLM Service
         --> Structured Response (JSON) --> Frontend
 ```
@@ -202,3 +209,57 @@ This project aligns with **SDG 8: Decent Work and Economic Growth** by supportin
 
 This project is open for educational purposes.
 Use responsibly and do not rely on this tool for financial/legal advice.
+
+---
+
+## Deployment Quickstart
+
+### 1. Deploy internal API (Render/Railway/Fly)
+
+Build/start command:
+
+```bash
+go run ./cmd/service
+```
+
+Required env vars:
+
+```env
+OPENROUTER_API_KEY=...
+PORT=8080
+FRONTEND_URL=https://<your-frontend-domain>
+```
+
+Health checks (all supported):
+
+* `GET /ping`
+* `GET /health`
+* `GET /api/ping`
+* `GET /api/health`
+
+Pricing endpoints (both supported):
+
+* `POST /price/recommend`
+* `POST /api/price/recommend`
+
+### 2. Deploy web app (Vercel/Netlify)
+
+From `web`:
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+Required env var:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=https://<your-internal-api-domain>
+```
+
+### 3. Verify after deploy
+
+1. Open `/` and ensure it renders the pricing form (no homepage 404).
+2. Call API health endpoint from browser/Postman.
+3. Submit the form and verify pricing response returns 200.

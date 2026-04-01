@@ -8,7 +8,12 @@ export async function makeRequest(input: PricingInputs | null): Promise<PricingR
   if (!input) {
      throw new Error(`No input provided`);
   }
-  const res = await fetch(`${API_BASE_URL}/api/price/recommend`, {
+
+  const endpoint = API_BASE_URL
+    ? `${API_BASE_URL}/api/price/recommend`
+    : "/api/price/recommend";
+
+  const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

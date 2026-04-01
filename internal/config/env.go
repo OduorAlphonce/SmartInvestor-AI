@@ -7,7 +7,9 @@ import (
 )
 
 type Config struct {
-	GeminiKey string
+	GeminiKey   string
+	Port        string
+	FrontendURL string
 }
 
 func Load() *Config {
@@ -15,7 +17,9 @@ func Load() *Config {
 	_ = godotenv.Load("../../.env")
 
 	cfg := &Config{
-		GeminiKey: getEnv("OPENROUTER_API_KEY", ""),
+		GeminiKey:   getEnv("OPENROUTER_API_KEY", ""),
+		Port:        getEnv("PORT", "8080"),
+		FrontendURL: getEnv("FRONTEND_URL", ""),
 	}
 
 	validate(cfg)
