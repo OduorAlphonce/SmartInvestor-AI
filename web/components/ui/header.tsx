@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { TrendingUp } from "lucide-react"
+import { Coins } from "lucide-react"
 
 export function Header() {
   return (
@@ -10,11 +10,11 @@ export function Header() {
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary">
-            <TrendingUp className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary ring-2 ring-primary/30">
+            <Coins className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="text-base font-semibold tracking-tight text-foreground">
-            Risk Intelligence
+            SmartInvestor Lite
           </span>
         </Link>
 
