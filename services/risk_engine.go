@@ -1,6 +1,6 @@
 package services
 
-// internal/services/risk_engine.
+// services/risk_engine.go
 import (
 	"fmt"
 	"strings"
