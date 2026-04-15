@@ -80,25 +80,24 @@ Root
 
 ```
 cmd/service/main.go          # Entry point for backend service
-internal/
-  config/                    # Env handling & configuration
-  handlers/                  # HTTP request handlers (pricing, ping)
-  middleware/                # Rate limiting
-  models/                    # Data structures for API
-  services/                  # Pricing engine, risk engine, LLM integration
+config/                      # Env handling & configuration
+handlers/                    # HTTP request handlers (pricing, ping)
+middleware/                  # Rate limiting
+models/                      # Data structures for API
+services/                    # Pricing engine, risk engine, LLM integration
 ```
 
 ## Setup Instructions
 
-### 1. Internal
+### 1. Backend
 
-1. Navigate to the `internal` directory:
+1. Navigate to the project root directory:
 
 ```bash
-cd internal
+cd SmartInvestor-AI
 ```
 
-2. Create a `.env` file in the backend root with your OpenRouter API key:
+2. Create a `.env` file in the root with your OpenRouter API key:
 
 ```env
 OPENROUTER_API_KEY=<your-api-key>
