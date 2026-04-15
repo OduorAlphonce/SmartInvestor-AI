@@ -29,8 +29,15 @@ Smart Investor is an AI-powered agent that helps small businesses make informed 
 
 ```
 Root
-├── web      # React + Next.js Web UI
-├── internal # Go API service with LLM integration
+├── web          # React + Next.js Web UI
+├── cmd/         # Entry point for backend service
+├── config/      # Env handling & configuration
+├── handlers/    # HTTP request handlers (pricing, ping)
+├── middleware/  # Rate limiting
+├── models/      # Data structures for API
+├── services/    # Pricing engine, risk engine, LLM integration
+├── go.mod       # Go module definition
+├── go.sum       # Go module checksums
 └── README.md
 ```
 

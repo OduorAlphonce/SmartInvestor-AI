@@ -1,1 +1,7 @@
+.env
 netlify.toml
+node_modules/
+.next/
+dist/
+bin/
+app
