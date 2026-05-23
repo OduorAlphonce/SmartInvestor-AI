@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -16,4 +17,12 @@ const nextConfig: NextConfig = {
   // You can add headers, rewrites, redirects here if needed
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Suppress source map uploading logs during build
+  silent: true,
+  org: "smart-investor-ai",
+  project: "javascript-nextjs",
+});
