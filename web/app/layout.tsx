@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import "./demo-guide/globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <Script
+          src="https://js.sentry-cdn.com/93e048b6a58ff325263770268483e9fc.min.js"
+          crossorigin="anonymous"
+          strategy="beforeInteractive"
+        />
+        {children}
+      </body>
     </html>
   );
 }
